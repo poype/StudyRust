@@ -1,15 +1,19 @@
 mod study_trait;
-use crate::study_trait::animal::{Cat, Dog};
-use crate::study_trait::runner::Runner;
 
 fn main() {
-    let cat = Cat::new("Jack".to_string(), "red".to_string());
-    let dog = Dog::new("Chris".to_string(), "Kingdom".to_string());
+    let s1 = "long string ~~~~~".to_string();
+    {
+        let s2 = "short str".to_string();
+        let result = longest(&s1, &s2);
+        println!("result: {}", result);
+    }
+}
 
-    cat.run();  // A cat whose name is Jack color is red is running!!!
-    dog.run();  // A dog of Kingdom whose name is Chris is quickly running!!!
-
-    // 调用trait中的默认方法实现
-    cat.callout();
-    dog.callout();
+// s1和s2的生命周期参数相同，所以这里的'a参数表示的生命周期只能是s1和s2的交集，返回值的生命周期也只能在这个交集中
+fn longest<'a>(s1: &'a str, s2: &'a str) -> &'a str {
+    if s1.len() > s2.len() {
+        s1
+    } else {
+        s2
+    }
 }
