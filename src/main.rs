@@ -2,24 +2,29 @@ mod study_trait;
 
 use trpl::{Html};
 
-// 普通main函数，在main函数内部嵌入了一个async block
 fn main() {
-    trpl::run(
-        async {
-            let url = "https://www.baidu.com/";
-            let title = page_title(url).await.unwrap();
+    let url1 = "https://www.baidu.com";
+    let url2 = "https://www.bilibili.com";
 
-            println!("title: {title}"); // title: 百度一下，你就知道
-        }
-    )
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(10)
+        .thread_stack_size(5 * 1024 * 1024)
+        .event_interval(20)
+        .max_blocking_threads(256)
+        .enable_all()
+        .build()
+        .unwrap();
+
+    runtime.block_on(page_title(url1));
+    runtime.block_on(page_title(url2));
 }
 
-// async说明这个函数是一个异步函数
-async fn page_title(url: &str) -> Option<String> {
+async fn page_title(url: &str) {
     let response = trpl::get(url).await;
     let response_text = response.text().await;
 
-    Html::parse(&response_text)
+    let title = Html::parse(&response_text)
         .select_first("title")
-        .map(|title_element| title_element.inner_html())
+        .map(|title_element| title_element.inner_html());
+    println!("title: {}", title.unwrap());
 }
