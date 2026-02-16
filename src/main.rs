@@ -1,19 +1,25 @@
 mod study_trait;
 
+use trpl::{Html};
+
+// 普通main函数，在main函数内部嵌入了一个async block
 fn main() {
-    let s1 = "long string ~~~~~".to_string();
-    {
-        let s2 = "short str".to_string();
-        let result = longest(&s1, &s2);
-        println!("result: {}", result);
-    }
+    trpl::run(
+        async {
+            let url = "https://www.baidu.com/";
+            let title = page_title(url).await.unwrap();
+
+            println!("title: {title}"); // title: 百度一下，你就知道
+        }
+    )
 }
 
-// s1和s2的生命周期参数相同，所以这里的'a参数表示的生命周期只能是s1和s2的交集，返回值的生命周期也只能在这个交集中
-fn longest<'a>(s1: &'a str, s2: &'a str) -> &'a str {
-    if s1.len() > s2.len() {
-        s1
-    } else {
-        s2
-    }
+// async说明这个函数是一个异步函数
+async fn page_title(url: &str) -> Option<String> {
+    let response = trpl::get(url).await;
+    let response_text = response.text().await;
+
+    Html::parse(&response_text)
+        .select_first("title")
+        .map(|title_element| title_element.inner_html())
 }
