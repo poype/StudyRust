@@ -1,4 +1,3 @@
-mod study_trait;
 
 use trpl::{Html};
 
